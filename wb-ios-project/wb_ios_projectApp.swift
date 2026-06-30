@@ -11,7 +11,7 @@ import SwiftUI
 struct wb_ios_projectApp: App {
     var body: some Scene {
         WindowGroup {
-            EmptyView()
+            CatalogView()
         }
     }
 }
