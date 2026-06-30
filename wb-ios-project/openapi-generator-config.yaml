@@ -1,0 +1,15 @@
+generate:
+  - types
+  - client
+accessModifier: internal
+filter:
+  paths:
+    - /products
+    - /products/{id}
+    - /products/{id}/favourite
+    - /products/{id}/reviews
+    - /categories
+    - /cart
+    - /cart/items
+    - /cart/items/{id}
+    - /orders
