@@ -24,7 +24,7 @@ struct CategoryCard: View {
         }
         .aspectRatio(1, contentMode: .fill)
         .frame(maxWidth: .infinity)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
