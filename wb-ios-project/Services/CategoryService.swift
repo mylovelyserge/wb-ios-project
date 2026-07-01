@@ -14,7 +14,8 @@ final class CategoryService {
     var categories: [Category] = []
     private let client = Client(
         serverURL: URL(string: "https://eat-and-pay.t02.ru")!,
-        transport: URLSessionTransport())
+        transport: URLSessionTransport(),
+        middlewares: [AuthMiddleware(token: Secrets.apiToken)])
     
     func load() async {
         do {
@@ -22,7 +23,16 @@ final class CategoryService {
             switch response {
             case .ok(let okResponse):
                 let categoriesDTO = try okResponse.body.json
-                print("Categories: \(categoriesDTO.count)")
+                
+                var result: [Category] = []
+                for dto in categoriesDTO {
+                    let category = Category(
+                        id: dto.id,
+                        name: dto.name,
+                        imageURL: URL(string: dto.image))
+                    result.append(category)
+                }
+                self.categories = result
             case .unauthorized:
                 print("401 - No Authorization")
             case .default(statusCode: let statusCode, _):

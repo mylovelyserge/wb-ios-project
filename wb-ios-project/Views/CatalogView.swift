@@ -17,7 +17,7 @@ struct CatalogView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 2) {
-                ForEach(Category.mocks) { category in
+                ForEach(service.categories) { category in
                     CategoryCard(category: category)
                 }
             }
