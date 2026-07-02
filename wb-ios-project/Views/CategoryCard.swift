@@ -19,12 +19,25 @@ struct CategoryCard: View {
             } placeholder: {
                 Color.gray
             }
+            
+            LinearGradient(
+                stops: [
+                    .init(color: .clear.opacity(0.1), location: 0.5),
+                    .init(color: .white.opacity(0.9), location: 0.7),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            
             Text(category.name)
-                .padding(12)
+                .font(.system(size: 14, weight: .medium))
+                .padding(.leading, 8)
+                .padding(.bottom, 6)
         }
         .aspectRatio(1, contentMode: .fill)
         .frame(maxWidth: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 2)
     }
 }
 
