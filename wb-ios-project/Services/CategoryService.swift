@@ -15,7 +15,10 @@ final class CategoryService {
     private let client = Client(
         serverURL: URL(string: "https://eat-and-pay.t02.ru")!,
         transport: URLSessionTransport(),
-        middlewares: [AuthMiddleware(token: Secrets.apiToken)])
+        middlewares: [
+            AuthMiddleware(token: Secrets.apiToken),
+            LoggingMiddleware()
+        ])
     
     func load() async {
         do {
