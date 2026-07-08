@@ -11,7 +11,15 @@ import SwiftUI
 struct wb_ios_projectApp: App {
     var body: some Scene {
         WindowGroup {
-            CatalogView()
+            TabView {
+                Tab("Каталог", systemImage: "list.bullet") {
+                    CatalogView()
+                }
+                
+                Tab("Корзина", systemImage: "basket") {
+                    CartView()
+                }
+            }
         }
     }
 }
