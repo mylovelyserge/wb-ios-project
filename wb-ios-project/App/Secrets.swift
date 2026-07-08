@@ -1,0 +1,12 @@
+//
+//  Secrets.swift
+//  wb-ios-project
+//
+//  Created by Sergei Biriukov on 7/1/26.
+//
+
+import Foundation
+
+enum Secrets {
+    static let apiToken = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJta29uZGFrb3ZhIiwiaWF0IjoxNzgyOTIyMDM2LCJqdGkiOiI4M2M3NjY2MS04Y2UwLTQzMWMtYWVlMS00ZWFmNGY4Y2MzOTMiLCJuaWNrbmFtZSI6ImJpcnl1a292LnNlcmdleSIsImlzVGVhY2hlciI6dHJ1ZX0.GgsxKXWEjGuTOUPHlgq8dSOqlGqQcsWiarbcn_JtXRREWobiOqkqDFAnriypeODnwvlgmcwSeFoV6pa_rYRejQ7OLuQ5iX3ncaf3Kmc3-mt3lOSEIAQued5dOM2Gg09loOPI1kh0UNIRZzeZlM4RtJ5RkqJShNOoIphubmI7mhhzXTRQuzLg3Mj9C_pAcqQuhr8QCCuV2tu3XF7wNX8LVXyUIUxnxMxJWRJtq1DX5pEG5p7PCRUdLKFpFhYtW0GEVcr1w4Em-uQBCsYu1UEDYXrs8rBCyONARqUYL6pKWaUOiV5ttFG9u_ZE_K2uol82XfYSrKoB6S6AIJsRivStew"
+}
