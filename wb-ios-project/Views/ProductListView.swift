@@ -10,6 +10,7 @@ import SwiftUI
 struct ProductListView: View {
     let categoryID: String
     @State private var service = ProductService()
+    @State private var selectedProduct: Product? = nil
     
     let columns = [
         GridItem(.flexible(), spacing: 4),
@@ -23,7 +24,13 @@ struct ProductListView: View {
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 18) {
                         ForEach(service.products) { product in
-                            ProductCard(product: product)
+                            Button {
+                                selectedProduct = product
+                            } label: {
+                                ProductCard(product: product)
+                            }
+                            .buttonStyle(.plain)
+
                         }
                     }
                     .padding(.horizontal, 12)
@@ -32,6 +39,9 @@ struct ProductListView: View {
         }
         .task {
             await service.load(categoryId: categoryID)
+        }
+        .sheet(item: $selectedProduct) { product in
+            ProductDetailView(productId: product.id)
         }
     }
 }
