@@ -29,6 +29,8 @@ struct CatalogView: View {
                 }
                 .padding(.horizontal, 12)
             }
+            .navigationTitle("Каталог")
+            .navigationBarTitleDisplayMode(.inline)
             .task {
                 await service.load()
             }

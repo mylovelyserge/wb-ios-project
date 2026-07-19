@@ -8,14 +8,64 @@
 import SwiftUI
 
 struct CartView: View {
+    @Environment(CartService.self) private var cartService
     var body: some View {
         NavigationStack {
-            Text("Корзина")
-                .navigationTitle("Корзина")
+            Group {
+                if cartService.items.isEmpty {
+                    ContentUnavailableView("Корзина пуста", systemImage: "cart")
+                } else {
+                    ScrollView {
+                        ForEach(cartService.items) { item in
+                            CartItemRow(item: item)
+                        }
+                    }
+                    .padding(.horizontal, 12)
+                    .safeAreaInset(edge: .bottom) {
+                        HStack {
+                            Text("Итого: \(cartService.totalPrice) ₽")
+                            Spacer()
+                            Button {
+                                //
+                            } label: {
+                                Text("Оформить")
+                                    .foregroundStyle(.white)
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .padding(.vertical, 12)
+                                    .padding(.horizontal, 24)
+                                    .background(LinearGradient(
+                                        colors: [
+                                            Color(red: 237/255, green: 60/255, blue: 202/255),
+                                            Color(red: 102/255, green: 0/255, blue: 255/255)
+                                        ],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    ))
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }
+
+                        }
+                        .padding()
+                    }
+                }
+            }
+            .navigationTitle("Корзина")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
 
-#Preview {
+#Preview("С товарами") {
+    let service = CartService()
+    service.add(product: Product.mocks[0])
+    service.add(product: Product.mocks[0])
+    service.add(product: Product.mocks[3])
+    service.add(product: Product.mocks[4])
+    return CartView()
+        .environment(service)
+}
+
+#Preview("Пустая") {
     CartView()
+        .environment(CartService())
 }

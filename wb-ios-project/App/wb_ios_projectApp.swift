@@ -9,6 +9,7 @@ import SwiftUI
 
 @main
 struct wb_ios_projectApp: App {
+    @State private var cartService = CartService()
     var body: some Scene {
         WindowGroup {
             TabView {
@@ -20,6 +21,7 @@ struct wb_ios_projectApp: App {
                     CartView()
                 }
             }
+            .environment(cartService)
         }
     }
 }
