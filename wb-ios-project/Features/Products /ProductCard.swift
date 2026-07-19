@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProductCard: View {
     let product: Product
+    let onAddToCart: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -50,7 +51,7 @@ struct ProductCard: View {
             }
             
             Button {
-                //
+                onAddToCart()
             } label: {
                 Text("В корзину")
                     .foregroundStyle(.black)
@@ -66,5 +67,5 @@ struct ProductCard: View {
 }
 
 #Preview {
-    ProductCard(product: Product.mocks[0])
+    ProductCard(product: Product.mocks[0], onAddToCart: {})
 }

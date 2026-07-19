@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProductListView: View {
     let categoryID: String
+    @Environment(CartService.self) private var cartService
     @State private var service = ProductService()
     @State private var selectedProduct: Product? = nil
     
@@ -27,7 +28,9 @@ struct ProductListView: View {
                             Button {
                                 selectedProduct = product
                             } label: {
-                                ProductCard(product: product)
+                                ProductCard(product: product, onAddToCart: {
+                                    cartService.add(product: product)
+                                })
                             }
                             .buttonStyle(.plain)
 
@@ -48,4 +51,5 @@ struct ProductListView: View {
 
 #Preview {
     ProductListView(categoryID: "1")
+        .environment(CartService())
 }

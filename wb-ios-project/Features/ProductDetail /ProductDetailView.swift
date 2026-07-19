@@ -30,6 +30,7 @@ struct ProductDetailView: View {
     let productId: String
     @State private var service = ProductDetailService()
     @Environment(\.dismiss) private var dismiss
+    @Environment(CartService.self) private var cartService
     var body: some View {
         Group {
             if service.isLoading {
@@ -113,7 +114,16 @@ struct ProductDetailView: View {
                 }
                 .safeAreaInset(edge: .bottom) {
                     Button {
-                        //
+                        cartService.add(
+                            product: Product(
+                                id: product.id,
+                                name: product.name,
+                                imageURL: product.imageURL,
+                                price: product.price,
+                                weight: product.weight,
+                                rating: product.rating,
+                                reviewCount: product.reviewsCount)
+                        )
                     } label: {
                         Text("В корзину")
                             .foregroundStyle(.white)
@@ -145,4 +155,5 @@ struct ProductDetailView: View {
 
 #Preview {
     ProductDetailView(productId: "1")
+        .environment(CartService())
 }
