@@ -20,6 +20,7 @@ struct wb_ios_projectApp: App {
                 Tab("Корзина", systemImage: "basket") {
                     CartView()
                 }
+                .badge(cartService.totalCount)
             }
             .environment(cartService)
         }

@@ -29,6 +29,8 @@ struct ProductDetailView: View {
     
     let productId: String
     @State private var service = ProductDetailService()
+    @State private var showConfirmation = false
+    
     @Environment(\.dismiss) private var dismiss
     @Environment(CartService.self) private var cartService
     var body: some View {
@@ -124,8 +126,13 @@ struct ProductDetailView: View {
                                 rating: product.rating,
                                 reviewCount: product.reviewsCount)
                         )
+                        withAnimation { showConfirmation = true }
+                        Task {
+                                try? await Task.sleep(for: .seconds(1.5))
+                                withAnimation { showConfirmation = false }
+                            }
                     } label: {
-                        Text("В корзину")
+                        Text(showConfirmation ? "✓ Добавлено" : "В корзину")
                             .foregroundStyle(.white)
                             .font(.system(size: 20, weight: .semibold))
                             .frame(maxWidth: .infinity)
