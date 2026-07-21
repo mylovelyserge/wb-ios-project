@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DesignSystem
 
 struct CartView: View {
     @Environment(CartService.self) private var cartService
@@ -30,17 +31,10 @@ struct CartView: View {
                             } label: {
                                 Text("Оформить")
                                     .foregroundStyle(.white)
-                                    .font(.system(size: 20, weight: .semibold))
+                                    .font(DSTypography.subtitle)
                                     .padding(.vertical, 12)
                                     .padding(.horizontal, 24)
-                                    .background(LinearGradient(
-                                        colors: [
-                                            Color(red: 237/255, green: 60/255, blue: 202/255),
-                                            Color(red: 102/255, green: 0/255, blue: 255/255)
-                                        ],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    ))
+                                    .background(DSColors.brandGradient)
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
 
