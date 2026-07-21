@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DesignSystem
 
 struct CartItemRow: View {
     @Environment(CartService.self) private var cartService
@@ -24,14 +25,14 @@ struct CartItemRow: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 Text("\(item.product.price) ₽")
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(DSTypography.subtitle)
                 
                 HStack(alignment: .firstTextBaseline) {
                     Text(item.product.name)
                     Text("\(Int(item.product.weight)) г")
                         .foregroundStyle(.secondary)
                 }
-                .font(.system(size: 14, weight: .regular))
+                .font(DSTypography.caption)
                 
                 
                 QuantityStepper(

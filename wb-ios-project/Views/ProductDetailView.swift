@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DesignSystem
 
 struct ProductDetailView: View {
     
@@ -68,7 +69,7 @@ struct ProductDetailView: View {
                         VStack(alignment: .leading) {
                             HStack {
                                 Text("\(product.price) ₽")
-                                    .font(.system(size: 32, weight: .medium))
+                                    .font(DSTypography.title)
                                 Spacer()
                                 
                                 Button {
@@ -88,11 +89,11 @@ struct ProductDetailView: View {
                                 Text("\(Int(product.weight)) г")
                                     .foregroundStyle(.secondary)
                             }
-                            .font(.system(size: 26, weight: .medium))
+                            .font(DSTypography.headline)
                             
                             HStack(spacing: 3) {
                                 Text(String(format: "%.1f", product.rating))
-                                    .font(.system(size: 16, weight: .regular))
+                                    .font(DSTypography.body)
                                 
                                 ForEach(1...5, id: \.self) { index in
                                     Image(systemName: index <= Int(product.rating.rounded()) ? "star.fill" : "star")
@@ -103,7 +104,7 @@ struct ProductDetailView: View {
                                     Image(systemName: "message")
                                         .font(.system(size: 12))
                                     Text("\(product.reviewsCount) \(reviewsWord(for: product.reviewsCount))")
-                                        .font(.system(size: 16, weight: .regular))
+                                        .font(DSTypography.body)
                                 }
                                 .padding(.horizontal, 10)
                             }
@@ -134,17 +135,10 @@ struct ProductDetailView: View {
                     } label: {
                         Text(showConfirmation ? "✓ Добавлено" : "В корзину")
                             .foregroundStyle(.white)
-                            .font(.system(size: 20, weight: .semibold))
+                            .font(DSTypography.subtitle)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
-                            .background(LinearGradient(
-                                colors: [
-                                    Color(red: 237/255, green: 60/255, blue: 202/255),
-                                    Color(red: 102/255, green: 0/255, blue: 255/255)
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            ))
+                            .background(DSColors.brandGradient)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     .padding(12)

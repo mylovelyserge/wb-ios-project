@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A1E2000300E926900948AE8 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 0A1E1FFF300E926900948AE8 /* DesignSystem */; };
 		0A3660632FF411EC00FC55DD /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 0A3660622FF411EC00FC55DD /* OpenAPIRuntime */; };
 		0A3660662FF4121100FC55DD /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 0A3660652FF4121100FC55DD /* OpenAPIURLSession */; };
 /* End PBXBuildFile section */
@@ -15,9 +16,22 @@
 		0A36604A2FF40DE900FC55DD /* wb-ios-project.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "wb-ios-project.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0A1E1FFC300E910200948AE8 /* Exceptions for "wb-ios-project" folder in "wb-ios-project" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				DesignSystem,
+			);
+			target = 0A3660492FF40DE900FC55DD /* wb-ios-project */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0A36604C2FF40DE900FC55DD /* wb-ios-project */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0A1E1FFC300E910200948AE8 /* Exceptions for "wb-ios-project" folder in "wb-ios-project" target */,
+			);
 			path = "wb-ios-project";
 			sourceTree = "<group>";
 		};
@@ -28,6 +42,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A1E2000300E926900948AE8 /* DesignSystem in Frameworks */,
 				0A3660662FF4121100FC55DD /* OpenAPIURLSession in Frameworks */,
 				0A3660632FF411EC00FC55DD /* OpenAPIRuntime in Frameworks */,
 			);
@@ -36,10 +51,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0A1E1FFE300E926900948AE8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		0A3660412FF40DE900FC55DD = {
 			isa = PBXGroup;
 			children = (
 				0A36604C2FF40DE900FC55DD /* wb-ios-project */,
+				0A1E1FFE300E926900948AE8 /* Frameworks */,
 				0A36604B2FF40DE900FC55DD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -75,6 +98,7 @@
 			packageProductDependencies = (
 				0A3660622FF411EC00FC55DD /* OpenAPIRuntime */,
 				0A3660652FF4121100FC55DD /* OpenAPIURLSession */,
+				0A1E1FFF300E926900948AE8 /* DesignSystem */,
 			);
 			productName = "wb-ios-project";
 			productReference = 0A36604A2FF40DE900FC55DD /* wb-ios-project.app */;
@@ -383,6 +407,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		0A1E1FFF300E926900948AE8 /* DesignSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DesignSystem;
+		};
 		0A3660622FF411EC00FC55DD /* OpenAPIRuntime */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0A3660612FF411EC00FC55DD /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */;

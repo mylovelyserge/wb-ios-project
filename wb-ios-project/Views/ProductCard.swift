@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DesignSystem
 
 struct ProductCard: View {
     let product: Product
@@ -24,7 +25,7 @@ struct ProductCard: View {
             }
             
             Text("\(product.price) ₽")
-                .font(.system(size: 18, weight: .semibold))
+                .font(DSTypography.subtitle)
                 .padding(.top, 8)
             
             HStack {
@@ -34,18 +35,18 @@ struct ProductCard: View {
                 Text("\(Int(product.weight)) г")
                     .foregroundStyle(.secondary)
             }
-            .font(.system(size: 14, weight: .regular))
+            .font(DSTypography.caption)
             
             HStack(spacing: 4) {
                 HStack(spacing: 2) {
                     Image(systemName: "star.fill")
-                        .font(.system(size: 11))
+                        .font(DSTypography.footnote)
                     Text(String(format: "%.1f", product.rating))
                 }
                 
                 HStack(spacing: 2) {
                     Image(systemName: "message")
-                        .font(.system(size: 11))
+                        .font(DSTypography.footnote)
                     Text("\(product.reviewCount)")
                 }
             }
