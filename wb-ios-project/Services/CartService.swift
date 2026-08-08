@@ -10,43 +10,48 @@ import Observation
 
 @Observable
 final class CartService {
-    private(set) var items: [CartItem] = []
+    private(set) var quantities: [String: Int] = [:]
+    private(set) var products: [String: Product] = [:]
     
     func add(product: Product) {
-        if let index = items.firstIndex(where: {$0.product.id == product.id}) {
-            items[index].quantity += 1
+        quantities[product.id, default: 0] += 1
+        products[product.id] = product
+    }
+    
+    func increase(productId: String) {
+        quantities[productId, default: 0] += 1
+    }
+    
+    func decrease(productId: String) {
+        guard let current = quantities[productId] else {return}
+        if current > 1 {
+            quantities[productId] = current - 1
         } else {
-            items.append(CartItem(product: product, quantity: 1))
+            quantities[productId] = nil
+            products[productId] = nil
         }
     }
     
-    func increase(product: Product) {
-        if let index = items.firstIndex(where: {$0.product.id == product.id}) {
-            items[index].quantity += 1
-        }
-    }
-    
-    func decrease(product: Product) {
-        if let index = items.firstIndex(where: {$0.product.id == product.id}) {
-            if items[index].quantity > 1 {
-                items[index].quantity -= 1
-            } else if items[index].quantity == 1 {
-                items.remove(at: index)
-            }
-        }
-    }
-    
-    func remove(product: Product) {
-        if let index = items.firstIndex(where: {$0.product.id == product.id}) {
-            items.remove(at: index)
-        }
+    func remove(productId: String) {
+        quantities[productId] = nil
+        products[productId] = nil
     }
     
     var totalCount: Int {
-        items.reduce(0) { $0 + $1.quantity }
+        quantities.values.reduce(0, +)
     }
     
     var totalPrice: Int {
-        items.reduce(0) { $0 + $1.product.price * $1.quantity}
+        quantities.reduce(0) { sum, pair in
+            let price = products[pair.key]?.price ?? 0
+            return sum + price * pair.value
+        }
+    }
+    
+    var items: [CartItem] {
+        quantities.sorted { $0.key < $1.key }.compactMap { pair in
+            guard let product = products[pair.key] else { return nil }
+            return CartItem(product: product, quantity: pair.value)
+        }
     }
 }

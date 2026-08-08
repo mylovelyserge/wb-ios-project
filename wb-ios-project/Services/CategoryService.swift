@@ -21,6 +21,7 @@ final class CategoryService {
         ])
     
     func load() async {
+        guard categories.isEmpty else { return }
         do {
             let response = try await client.get_sol_categories()
             switch response {

@@ -37,8 +37,8 @@ struct CartItemRow: View {
                 
                 QuantityStepper(
                     quantity: item.quantity,
-                    onDecrease: { cartService.decrease(product: item.product) },
-                    onIncrease: { cartService.increase(product: item.product) }
+                    onDecrease: { cartService.decrease(productId: item.id) },
+                    onIncrease: { cartService.increase(productId: item.id) }
                 )
                 .padding(.top, 8)
             }

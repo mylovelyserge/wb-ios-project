@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct CatalogView: View {
-    @State private var service = CategoryService()
+    @Environment(CategoryService.self) private var service
+    @State private var isSearchPresented = false
     let columns = [
         GridItem(.flexible(), spacing: 2),
         GridItem(.flexible(), spacing: 2),
@@ -16,23 +17,33 @@ struct CatalogView: View {
     ]
     var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 2) {
-                    ForEach(service.categories) { category in
-                        NavigationLink {
-                            ProductListView(categoryID: category.id)
-                        } label: {
-                            CategoryCard(category: category)
+            ZStack(alignment: .bottomLeading) {
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 2) {
+                        ForEach(service.categories) { category in
+                            NavigationLink {
+                                ProductListView(categoryID: category.id)
+                            } label: {
+                                CategoryCard(category: category)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
+                    .padding(.horizontal, 12)
                 }
-                .padding(.horizontal, 12)
+                
+                SearchButton {
+                    isSearchPresented = true
+                }
+                .padding(12)
             }
             .navigationTitle("Каталог")
             .navigationBarTitleDisplayMode(.inline)
             .task {
                 await service.load()
+            }
+            .fullScreenCover(isPresented: $isSearchPresented) {
+                SearchView()
             }
         }
     }
@@ -40,4 +51,5 @@ struct CatalogView: View {
 
 #Preview {
     CatalogView()
+        .environment(SearchService(productService: ProductService(), categoryService: CategoryService()))
 }

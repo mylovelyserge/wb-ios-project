@@ -34,6 +34,7 @@ struct ProductDetailView: View {
     
     @Environment(\.dismiss) private var dismiss
     @Environment(CartService.self) private var cartService
+    @Environment(FavoriteService.self) private var favoriteService
     var body: some View {
         Group {
             if service.isLoading {
@@ -73,11 +74,19 @@ struct ProductDetailView: View {
                                 Spacer()
                                 
                                 Button {
-                                    
+                                    favoriteService.toggle(product: Product(
+                                        id: product.id,
+                                        name: product.name,
+                                        imageURL: product.imageURL,
+                                        price: product.price,
+                                        weight: product.weight,
+                                        rating: product.rating,
+                                        reviewCount: product.reviewsCount)
+                                )
                                 } label: {
-                                    Image(systemName: product.isFavorite ? "heart.fill" : "heart")
+                                    Image(systemName: favoriteService.contains(productId: product.id) ? "heart.fill" : "heart")
                                         .font(.system(size: 30))
-                                        .foregroundStyle(product.isFavorite ? .pink : .secondary)
+                                        .foregroundStyle(favoriteService.contains(productId: product.id) ? .pink : .secondary)
                                         
                                 }
                                 .buttonStyle(.plain)
@@ -157,4 +166,5 @@ struct ProductDetailView: View {
 #Preview {
     ProductDetailView(productId: "1")
         .environment(CartService())
+        .environment(FavoriteService())
 }
