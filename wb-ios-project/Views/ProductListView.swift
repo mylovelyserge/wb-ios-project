@@ -12,6 +12,7 @@ struct ProductListView: View {
     @Environment(CartService.self) private var cartService
     @State private var service = ProductService()
     @State private var selectedProduct: Product? = nil
+    @Environment(FavoriteService.self) private var favoriteService
     
     let columns = [
         GridItem(.flexible(), spacing: 4),
@@ -28,9 +29,15 @@ struct ProductListView: View {
                             Button {
                                 selectedProduct = product
                             } label: {
-                                ProductCard(product: product, onAddToCart: {
-                                    cartService.add(product: product)
-                                })
+                                ProductCard(
+                                    product: product,
+                                    onAddToCart: { cartService.add(product: product) },
+                                    isFavorite: favoriteService.contains(productId: product.id),
+                                    onToggleFavorite: { favoriteService.toggle(product: product) }
+                                )
+                                .onTapGesture {
+                                    selectedProduct = product
+                                }
                             }
                             .buttonStyle(.plain)
 

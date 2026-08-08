@@ -12,16 +12,33 @@ struct ProductCard: View {
     let product: Product
     let onAddToCart: () -> Void
     
+    let isFavorite: Bool
+    let onToggleFavorite: () -> Void
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            AsyncImage(url: product.imageURL) { image in
-                image
-                    .resizable()
-                    .frame(maxWidth: .infinity)
-                    .aspectRatio(1, contentMode: .fit)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-            } placeholder: {
-                Color.gray
+            ZStack(alignment: .topTrailing) {
+                AsyncImage(url: product.imageURL) { image in
+                    image
+                        .resizable()
+                        .scaledToFit()
+                } placeholder: {
+                    Color.gray
+                }
+                .aspectRatio(1, contentMode: .fit)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                
+                Button {
+                    onToggleFavorite()
+                } label: {
+                    Image(systemName: isFavorite ? "heart.fill" : "heart")
+                        .font(.title3)
+                        .foregroundStyle(isFavorite ? .red : .white)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                        .shadow(radius: 2)
+                }
+
             }
             
             Text("\(product.price) ₽")
@@ -68,5 +85,5 @@ struct ProductCard: View {
 }
 
 #Preview {
-    ProductCard(product: Product.mocks[0], onAddToCart: {})
+    ProductCard(product: Product.mocks[0], onAddToCart: {}, isFavorite: true, onToggleFavorite: {})
 }
