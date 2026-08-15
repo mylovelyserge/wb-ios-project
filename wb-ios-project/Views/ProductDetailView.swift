@@ -9,25 +9,6 @@ import SwiftUI
 import DesignSystem
 
 struct ProductDetailView: View {
-    
-    private func reviewsWord(for count: Int) -> String {
-        let lastTwoDigits = count % 100
-        let lastDigit = lastTwoDigits % 10
-        
-        if (11...14).contains(lastTwoDigits) {
-            return "отзывов"
-        }
-        switch lastDigit {
-        case 1:
-            return "отзыв"
-        case 2...4:
-            return "отзыва"
-        default:
-            return "отзывов"
-        }
-    }
-    
-    
     let productId: String
     @State private var service = ProductDetailService()
     @State private var showConfirmation = false
@@ -43,7 +24,7 @@ struct ProductDetailView: View {
                 ScrollView {
                     VStack(alignment: .leading) {
                         ZStack(alignment: .topTrailing) {
-                            AsyncImage(url: product.imageURL) { image in
+                            RemoteImage(url: product.imageURL) { image in
                                 image
                                     .resizable()
                                     .aspectRatio(1, contentMode: .fit)
@@ -69,20 +50,12 @@ struct ProductDetailView: View {
                         
                         VStack(alignment: .leading) {
                             HStack {
-                                Text("\(product.price) ₽")
+                                Text(ProductDisplayFormat.price(product.price))
                                     .font(DSTypography.title)
                                 Spacer()
                                 
                                 Button {
-                                    favoriteService.toggle(product: Product(
-                                        id: product.id,
-                                        name: product.name,
-                                        imageURL: product.imageURL,
-                                        price: product.price,
-                                        weight: product.weight,
-                                        rating: product.rating,
-                                        reviewCount: product.reviewsCount)
-                                )
+                                    favoriteService.toggle(product: product.product)
                                 } label: {
                                     Image(systemName: favoriteService.contains(productId: product.id) ? "heart.fill" : "heart")
                                         .font(.system(size: 30))
@@ -95,13 +68,13 @@ struct ProductDetailView: View {
                             
                             HStack(alignment: .firstTextBaseline) {
                                 Text(product.name)
-                                Text("\(Int(product.weight)) г")
+                                Text(ProductDisplayFormat.weight(product.weight))
                                     .foregroundStyle(.secondary)
                             }
                             .font(DSTypography.headline)
                             
                             HStack(spacing: 3) {
-                                Text(String(format: "%.1f", product.rating))
+                                Text(ProductDisplayFormat.rating(product.rating))
                                     .font(DSTypography.body)
                                 
                                 ForEach(1...5, id: \.self) { index in
@@ -112,7 +85,7 @@ struct ProductDetailView: View {
                                 HStack(spacing: 6) {
                                     Image(systemName: "message")
                                         .font(.system(size: 12))
-                                    Text("\(product.reviewsCount) \(reviewsWord(for: product.reviewsCount))")
+                                    Text(ProductDisplayFormat.reviews(product.reviewsCount))
                                         .font(DSTypography.body)
                                 }
                                 .padding(.horizontal, 10)
@@ -126,16 +99,7 @@ struct ProductDetailView: View {
                 }
                 .safeAreaInset(edge: .bottom) {
                     Button {
-                        cartService.add(
-                            product: Product(
-                                id: product.id,
-                                name: product.name,
-                                imageURL: product.imageURL,
-                                price: product.price,
-                                weight: product.weight,
-                                rating: product.rating,
-                                reviewCount: product.reviewsCount)
-                        )
+                        cartService.add(product: product.product)
                         withAnimation { showConfirmation = true }
                         Task {
                                 try? await Task.sleep(for: .seconds(1.5))

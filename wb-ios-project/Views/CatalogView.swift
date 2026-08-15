@@ -10,7 +10,7 @@ import SwiftUI
 struct CatalogView: View {
     @Environment(CategoryService.self) private var service
     @State private var isSearchPresented = false
-    let columns = [
+    private let columns = [
         GridItem(.flexible(), spacing: 2),
         GridItem(.flexible(), spacing: 2),
         GridItem(.flexible(), spacing: 2),
@@ -50,6 +50,12 @@ struct CatalogView: View {
 }
 
 #Preview {
+    let categoryService = CategoryService()
+    let productService = ProductService()
+
     CatalogView()
-        .environment(SearchService(productService: ProductService(), categoryService: CategoryService()))
+        .environment(CartService())
+        .environment(FavoriteService())
+        .environment(categoryService)
+        .environment(SearchService(productService: productService, categoryService: categoryService))
 }

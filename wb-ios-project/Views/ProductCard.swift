@@ -18,7 +18,7 @@ struct ProductCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ZStack(alignment: .topTrailing) {
-                AsyncImage(url: product.imageURL) { image in
+                RemoteImage(url: product.imageURL) { image in
                     image
                         .resizable()
                         .scaledToFit()
@@ -41,7 +41,7 @@ struct ProductCard: View {
 
             }
             
-            Text("\(product.price) ₽")
+            Text(ProductDisplayFormat.price(product.price))
                 .font(DSTypography.subtitle)
                 .padding(.top, 8)
             
@@ -49,7 +49,7 @@ struct ProductCard: View {
                 Text(product.name)
                     .lineLimit(1)
                 Spacer()
-                Text("\(Int(product.weight)) г")
+                Text(ProductDisplayFormat.weight(product.weight))
                     .foregroundStyle(.secondary)
             }
             .font(DSTypography.caption)
@@ -58,7 +58,7 @@ struct ProductCard: View {
                 HStack(spacing: 2) {
                     Image(systemName: "star.fill")
                         .font(DSTypography.footnote)
-                    Text(String(format: "%.1f", product.rating))
+                    Text(ProductDisplayFormat.rating(product.rating))
                 }
                 
                 HStack(spacing: 2) {

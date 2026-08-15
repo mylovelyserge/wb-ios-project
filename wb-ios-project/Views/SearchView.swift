@@ -10,19 +10,12 @@ import SwiftUI
 struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(SearchService.self) private var searchService
-    @Environment(CartService.self) private var cartService
-    @Environment(FavoriteService.self) private var favoriteService
     
     @State private var query = ""
     @State private var results: [Product] = []
     @FocusState private var isFocused: Bool
     @State private var searchTask: Task<Void, Never>?
     @State private var selectedProduct: Product?
-    
-    private let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
-    ]
     
     var body: some View {
         NavigationStack {
@@ -41,22 +34,7 @@ struct SearchView: View {
                     } else if results.isEmpty {
                         ContentUnavailableView.search(text: query)
                     } else {
-                        ScrollView {
-                            LazyVGrid(columns: columns, spacing: 18) {
-                                ForEach(results) { product in
-                                    ProductCard(
-                                        product: product,
-                                        onAddToCart: { cartService.add(product: product) },
-                                        isFavorite: favoriteService.contains(productId: product.id),
-                                        onToggleFavorite: { favoriteService.toggle(product: product) }
-                                    )
-                                    .onTapGesture {
-                                        selectedProduct = product
-                                    }
-                                }
-                            }
-                            .padding(.horizontal, 12)
-                        }
+                        ProductGridView(products: results, selectedProduct: $selectedProduct)
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -70,6 +48,9 @@ struct SearchView: View {
                         }
             }
             .onAppear { isFocused = true }
+            .onDisappear {
+                searchTask?.cancel()
+            }
             .sheet(item: $selectedProduct) { product in
                 ProductDetailView(productId: product.id)
             }
@@ -105,4 +86,3 @@ struct SearchView: View {
         .environment(FavoriteService())
         
 }
-

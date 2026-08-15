@@ -12,7 +12,7 @@ struct CategoryCard: View {
     
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            AsyncImage(url: category.imageURL) { image in
+            RemoteImage(url: category.imageURL) { image in
                 image
                     .resizable()
                     .scaledToFill()
@@ -44,4 +44,3 @@ struct CategoryCard: View {
 #Preview {
     CategoryCard(category: Category.mocks[0])
 }
-

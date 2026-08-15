@@ -11,20 +11,18 @@ import SwiftUI
 struct wb_ios_projectApp: App {
     @State private var cartService = CartService()
     @State private var favoriteService = FavoriteService()
-    @State private var productService = ProductService()
     @State private var categoryService = CategoryService()
     @State private var searchService: SearchService
     
     init() {
-            let productService = ProductService()
-            let categoryService = CategoryService()
-            _productService = State(initialValue: productService)
-            _categoryService = State(initialValue: categoryService)
-            _searchService = State(initialValue: SearchService(
-                productService: productService,
-                categoryService: categoryService
-            ))
-        }
+        let productService = ProductService()
+        let categoryService = CategoryService()
+        _categoryService = State(initialValue: categoryService)
+        _searchService = State(initialValue: SearchService(
+            productService: productService,
+            categoryService: categoryService
+        ))
+    }
     var body: some Scene {
         WindowGroup {
             TabView {

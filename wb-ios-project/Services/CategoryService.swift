@@ -6,19 +6,12 @@
 //
 
 import Foundation
-import OpenAPIURLSession
 import Observation
 
 @Observable
 final class CategoryService {
     var categories: [Category] = []
-    private let client = Client(
-        serverURL: URL(string: "https://eat-and-pay.t02.ru")!,
-        transport: URLSessionTransport(),
-        middlewares: [
-            AuthMiddleware(token: Secrets.apiToken),
-            LoggingMiddleware()
-        ])
+    private let client = APIClientFactory.makeClient()
     
     func load() async {
         guard categories.isEmpty else { return }
@@ -27,16 +20,14 @@ final class CategoryService {
             switch response {
             case .ok(let okResponse):
                 let categoriesDTO = try okResponse.body.json
-                
-                var result: [Category] = []
-                for dto in categoriesDTO {
-                    let category = Category(
+
+                categories = categoriesDTO.map { dto in
+                    Category(
                         id: dto.id,
                         name: dto.name,
-                        imageURL: URL(string: dto.image))
-                    result.append(category)
+                        imageURL: URL(string: dto.image)
+                    )
                 }
-                self.categories = result
             case .unauthorized:
                 print("401 - No Authorization")
             case .default(statusCode: let statusCode, _):

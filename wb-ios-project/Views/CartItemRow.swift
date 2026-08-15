@@ -13,7 +13,7 @@ struct CartItemRow: View {
     let item: CartItem
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            AsyncImage(url: item.product.imageURL) { image in
+            RemoteImage(url: item.product.imageURL) { image in
                 image
                     .resizable()
                     .aspectRatio(1, contentMode: .fit)
@@ -24,12 +24,12 @@ struct CartItemRow: View {
             .clipShape(RoundedRectangle(cornerRadius: 8))
             
             VStack(alignment: .leading, spacing: 4) {
-                Text("\(item.product.price) ₽")
+                Text(ProductDisplayFormat.price(item.product.price))
                     .font(DSTypography.subtitle)
                 
                 HStack(alignment: .firstTextBaseline) {
                     Text(item.product.name)
-                    Text("\(Int(item.product.weight)) г")
+                    Text(ProductDisplayFormat.weight(item.product.weight))
                         .foregroundStyle(.secondary)
                 }
                 .font(DSTypography.caption)
@@ -44,9 +44,6 @@ struct CartItemRow: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .onAppear {
-            print("CART IMG:", item.product.imageURL?.absoluteString ?? "nil")
-        }
     }
 }
 

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import OpenAPIURLSession
 import Observation
 
 @Observable
@@ -14,26 +13,20 @@ final class ProductDetailService {
     var product: ProductDetail?
     var isLoading = false
     
-    private let client = Client(
-        serverURL: URL(string: "https://eat-and-pay.t02.ru")!,
-        transport: URLSessionTransport(),
-        middlewares: [
-            AuthMiddleware(token: Secrets.apiToken),
-            LoggingMiddleware()
-        ])
+    private let client = APIClientFactory.makeClient()
     
     func load(productId: String) async {
         isLoading = true
-        defer {isLoading = false}
+        defer { isLoading = false }
         
         do {
             let response = try await client.get_sol_products_sol__lcub_id_rcub_(
                 path: .init(id: productId)
             )
             switch response {
-            case .ok(let okRresponse):
-                let dto = try okRresponse.body.json
-                self.product = ProductDetail(
+            case .ok(let okResponse):
+                let dto = try okResponse.body.json
+                product = ProductDetail(
                     id: dto.id,
                     name: dto.name,
                     imageURL: URL(string: dto.image),
