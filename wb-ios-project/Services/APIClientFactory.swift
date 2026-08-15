@@ -2,7 +2,6 @@
 //  APIClientFactory.swift
 //  wb-ios-project
 //
-//  Created by Codex on 8/15/26.
 //
 
 import Foundation
