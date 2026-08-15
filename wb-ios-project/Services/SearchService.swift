@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import OpenAPIURLSession
 import Observation
 
 @Observable

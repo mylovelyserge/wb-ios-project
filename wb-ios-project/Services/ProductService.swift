@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import OpenAPIURLSession
 import Observation
 
 enum ProductServiceError: Error {
@@ -20,13 +19,7 @@ final class ProductService {
     var products: [Product] = []
     var isLoading = false
     
-    private let client = Client(
-        serverURL: URL(string: "https://eat-and-pay.t02.ru")!,
-        transport: URLSessionTransport(),
-        middlewares: [
-            AuthMiddleware(token: Secrets.apiToken),
-            LoggingMiddleware()
-        ])
+    private let client = APIClientFactory.makeClient()
     
     func load(categoryId: String) async {
         isLoading = true

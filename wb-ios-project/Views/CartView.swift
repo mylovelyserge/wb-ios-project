@@ -24,7 +24,7 @@ struct CartView: View {
                     .padding(.horizontal, 12)
                     .safeAreaInset(edge: .bottom) {
                         HStack {
-                            Text("Итого: \(cartService.totalPrice) ₽")
+                            Text(ProductDisplayFormat.totalPrice(cartService.totalPrice))
                             Spacer()
                             Button {
                                 //

@@ -9,15 +9,9 @@ import SwiftUI
 
 struct FavoritesView: View {
     @Environment(FavoriteService.self) private var favoriteService
-    @Environment(CartService.self) private var cartService
     @State private var selectedProduct: Product? = nil
     @State private var isSearchPresented = false
-    
-    let columns = [
-        GridItem(.flexible(), spacing: 4),
-        GridItem(.flexible(), spacing: 4),
-    ]
-    
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottomLeading) {
@@ -25,23 +19,7 @@ struct FavoritesView: View {
                     if favoriteService.items.isEmpty {
                         ContentUnavailableView("Нет избранного", systemImage: "heart")
                     } else {
-                        ScrollView {
-                            LazyVGrid(columns: columns, spacing: 18) {
-                                ForEach(favoriteService.items) { product in
-                                    ProductCard(
-                                        product: product,
-                                        onAddToCart: { cartService.add(product: product) },
-                                        isFavorite: favoriteService.contains(productId: product.id),
-                                        onToggleFavorite: { favoriteService.toggle(product: product) }
-                                    )
-                                    .onTapGesture {
-                                        selectedProduct = product
-                                    }
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 12)
-                        
+                        ProductGridView(products: favoriteService.items, selectedProduct: $selectedProduct)
                     }
                 }
                 .navigationTitle("Избранное")

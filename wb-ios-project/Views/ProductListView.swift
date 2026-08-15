@@ -9,45 +9,18 @@ import SwiftUI
 
 struct ProductListView: View {
     let categoryID: String
-    @Environment(CartService.self) private var cartService
     @State private var service = ProductService()
     @State private var selectedProduct: Product? = nil
-    @Environment(FavoriteService.self) private var favoriteService
-    
-    let columns = [
-        GridItem(.flexible(), spacing: 4),
-        GridItem(.flexible(), spacing: 4),
-    ]
+
     var body: some View {
         Group {
             if service.isLoading {
                 ProgressView()
             } else {
-                ScrollView {
-                    LazyVGrid(columns: columns, spacing: 18) {
-                        ForEach(service.products) { product in
-                            Button {
-                                selectedProduct = product
-                            } label: {
-                                ProductCard(
-                                    product: product,
-                                    onAddToCart: { cartService.add(product: product) },
-                                    isFavorite: favoriteService.contains(productId: product.id),
-                                    onToggleFavorite: { favoriteService.toggle(product: product) }
-                                )
-                                .onTapGesture {
-                                    selectedProduct = product
-                                }
-                            }
-                            .buttonStyle(.plain)
-
-                        }
-                    }
-                    .padding(.horizontal, 12)
-                }
+                ProductGridView(products: service.products, selectedProduct: $selectedProduct)
             }
         }
-        .task {
+        .task(id: categoryID) {
             await service.load(categoryId: categoryID)
         }
         .sheet(item: $selectedProduct) { product in
@@ -59,4 +32,5 @@ struct ProductListView: View {
 #Preview {
     ProductListView(categoryID: "1")
         .environment(CartService())
+        .environment(FavoriteService())
 }
