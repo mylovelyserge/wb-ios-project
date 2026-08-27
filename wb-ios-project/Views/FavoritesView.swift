@@ -10,6 +10,7 @@ import SwiftUI
 struct FavoritesView: View {
     @Environment(FavoriteService.self) private var favoriteService
     @State private var selectedProduct: Product? = nil
+    @State private var reviewsProduct: Product? = nil
     @State private var isSearchPresented = false
 
     var body: some View {
@@ -19,13 +20,20 @@ struct FavoritesView: View {
                     if favoriteService.items.isEmpty {
                         ContentUnavailableView("Нет избранного", systemImage: "heart")
                     } else {
-                        ProductGridView(products: favoriteService.items, selectedProduct: $selectedProduct)
+                        ProductGridView(
+                            products: favoriteService.items,
+                            selectedProduct: $selectedProduct,
+                            reviewsProduct: $reviewsProduct
+                        )
                     }
                 }
                 .navigationTitle("Избранное")
                 .navigationBarTitleDisplayMode(.inline)
                 .sheet(item: $selectedProduct) { product in
                     ProductDetailView(productId: product.id)
+                }
+                .sheet(item: $reviewsProduct) { product in
+                    ReviewsSheetView(productId: product.id)
                 }
                 .fullScreenCover(isPresented: $isSearchPresented) {
                     SearchView()

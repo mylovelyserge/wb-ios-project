@@ -27,6 +27,17 @@ enum ProductDisplayFormat {
         "\(count) \(reviewsWord(for: count))"
     }
 
+    static func rating(_ value: Double) -> String {
+        String(format: "%.1f", value)
+    }
+
+    static func reviewDate(_ value: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.dateFormat = "d MMMM"
+        return formatter.string(from: value)
+    }
+
     private static func reviewsWord(for count: Int) -> String {
         let lastTwoDigits = count % 100
         let lastDigit = lastTwoDigits % 10

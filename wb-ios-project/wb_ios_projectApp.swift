@@ -43,7 +43,6 @@ struct wb_ios_projectApp: App {
             .environment(cartService)
             .environment(favoriteService)
             .environment(searchService)
-            .task { await searchService.loadAllProducts() }
             .environment(categoryService)
         }
     }

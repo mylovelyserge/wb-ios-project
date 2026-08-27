@@ -9,6 +9,7 @@ import SwiftUI
 struct ProductGridView: View {
     let products: [Product]
     @Binding var selectedProduct: Product?
+    @Binding var reviewsProduct: Product?
 
     @Environment(CartService.self) private var cartService
     @Environment(FavoriteService.self) private var favoriteService
@@ -24,14 +25,12 @@ struct ProductGridView: View {
                 ForEach(products) { product in
                     ProductCard(
                         product: product,
+                        onSelect: { selectedProduct = product },
                         onAddToCart: { cartService.add(product: product) },
+                        onShowReviews: { reviewsProduct = product },
                         isFavorite: favoriteService.contains(productId: product.id),
                         onToggleFavorite: { favoriteService.toggle(product: product) }
                     )
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        selectedProduct = product
-                    }
                 }
             }
             .padding(.horizontal, 12)
@@ -41,8 +40,13 @@ struct ProductGridView: View {
 
 #Preview {
     @Previewable @State var selectedProduct: Product?
+    @Previewable @State var reviewsProduct: Product?
 
-    ProductGridView(products: Product.mocks, selectedProduct: $selectedProduct)
+    ProductGridView(
+        products: Product.mocks,
+        selectedProduct: $selectedProduct,
+        reviewsProduct: $reviewsProduct
+    )
         .environment(CartService())
         .environment(FavoriteService())
 }

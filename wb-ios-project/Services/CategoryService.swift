@@ -11,10 +11,18 @@ import Observation
 @Observable
 final class CategoryService {
     var categories: [Category] = []
+    var isLoading = false
+    var errorMessage: String?
     private let client = APIClientFactory.makeClient()
     
-    func load() async {
-        guard categories.isEmpty else { return }
+    func load(forceReload: Bool = false) async {
+        guard !isLoading else { return }
+        guard forceReload || categories.isEmpty else { return }
+
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+
         do {
             let response = try await client.get_sol_categories()
             switch response {
@@ -29,11 +37,18 @@ final class CategoryService {
                     )
                 }
             case .unauthorized:
-                print("401 - No Authorization")
+                errorMessage = "Не удалось авторизоваться"
             case .default(statusCode: let statusCode, _):
+                errorMessage = "Сервер вернул ошибку \(statusCode)"
                 print("Unknown status code: \(statusCode)")
             }
         } catch {
+            if NetworkFallback.usesMockDataOnTransportFailure {
+                categories = Category.mocks
+                errorMessage = nil
+            } else {
+                errorMessage = "Не удалось подключиться к серверу"
+            }
             print("Error: \(error)")
         }
     }
