@@ -15,6 +15,7 @@ struct ProductDetail: Identifiable {
     let weight: Double
     let rating: Float
     let description: String
+    let reviews: [Review]
     let reviewsCount: Int
     let isFavorite: Bool
 }

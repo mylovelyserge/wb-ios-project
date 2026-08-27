@@ -16,12 +16,24 @@ struct SearchView: View {
     @FocusState private var isFocused: Bool
     @State private var searchTask: Task<Void, Never>?
     @State private var selectedProduct: Product?
+    @State private var reviewsProduct: Product?
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 Group {
-                    if query.isEmpty {
+                    if searchService.isLoading {
+                        ProgressView()
+                    } else if let errorMessage = searchService.errorMessage {
+                        LoadingErrorView(
+                            title: "Не удалось загрузить поиск",
+                            message: errorMessage,
+                            retryTitle: "Повторить",
+                            onRetry: {
+                                Task { await searchService.loadAllProducts() }
+                            }
+                        )
+                    } else if query.isEmpty {
                         List(searchService.history, id: \.self) { item in
                             Button {
                                 query = item
@@ -34,7 +46,11 @@ struct SearchView: View {
                     } else if results.isEmpty {
                         ContentUnavailableView.search(text: query)
                     } else {
-                        ProductGridView(products: results, selectedProduct: $selectedProduct)
+                        ProductGridView(
+                            products: results,
+                            selectedProduct: $selectedProduct,
+                            reviewsProduct: $reviewsProduct
+                        )
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -47,12 +63,18 @@ struct SearchView: View {
                             searchService.addToHistory(query)
                         }
             }
-            .onAppear { isFocused = true }
+            .onAppear {
+                isFocused = true
+                Task { await searchService.loadAllProducts() }
+            }
             .onDisappear {
                 searchTask?.cancel()
             }
             .sheet(item: $selectedProduct) { product in
                 ProductDetailView(productId: product.id)
+            }
+            .sheet(item: $reviewsProduct) { product in
+                ReviewsSheetView(productId: product.id)
             }
             .onChange(of: query) {
                 searchTask?.cancel()

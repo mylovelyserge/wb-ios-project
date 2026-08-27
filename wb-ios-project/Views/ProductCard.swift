@@ -10,7 +10,9 @@ import DesignSystem
 
 struct ProductCard: View {
     let product: Product
+    let onSelect: () -> Void
     let onAddToCart: () -> Void
+    let onShowReviews: () -> Void
     
     let isFavorite: Bool
     let onToggleFavorite: () -> Void
@@ -27,6 +29,9 @@ struct ProductCard: View {
                 }
                 .aspectRatio(1, contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .onTapGesture {
+                    onSelect()
+                }
                 
                 Button {
                     onToggleFavorite()
@@ -44,6 +49,9 @@ struct ProductCard: View {
             Text(ProductDisplayFormat.price(product.price))
                 .font(DSTypography.subtitle)
                 .padding(.top, 8)
+                .onTapGesture {
+                    onSelect()
+                }
             
             HStack {
                 Text(product.name)
@@ -53,6 +61,10 @@ struct ProductCard: View {
                     .foregroundStyle(.secondary)
             }
             .font(DSTypography.caption)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                onSelect()
+            }
             
             HStack(spacing: 4) {
                 HStack(spacing: 2) {
@@ -60,12 +72,21 @@ struct ProductCard: View {
                         .font(DSTypography.footnote)
                     Text(ProductDisplayFormat.rating(product.rating))
                 }
-                
-                HStack(spacing: 2) {
-                    Image(systemName: "message")
-                        .font(DSTypography.footnote)
-                    Text("\(product.reviewCount)")
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    onSelect()
                 }
+                
+                Button {
+                    onShowReviews()
+                } label: {
+                    HStack(spacing: 2) {
+                        Image(systemName: "message")
+                            .font(DSTypography.footnote)
+                        Text("\(product.reviewCount)")
+                    }
+                }
+                .buttonStyle(.plain)
             }
             
             Button {
@@ -85,5 +106,12 @@ struct ProductCard: View {
 }
 
 #Preview {
-    ProductCard(product: Product.mocks[0], onAddToCart: {}, isFavorite: true, onToggleFavorite: {})
+    ProductCard(
+        product: Product.mocks[0],
+        onSelect: {},
+        onAddToCart: {},
+        onShowReviews: {},
+        isFavorite: true,
+        onToggleFavorite: {}
+    )
 }

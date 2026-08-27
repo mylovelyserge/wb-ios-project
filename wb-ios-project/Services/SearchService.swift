@@ -12,6 +12,8 @@ import Observation
 final class SearchService {
     private(set) var allProducts: [Product] = []
     private(set) var history: [String] = []
+    private(set) var isLoading = false
+    private(set) var errorMessage: String?
     private let productService: ProductService
     private let categoryService: CategoryService
     
@@ -21,10 +23,19 @@ final class SearchService {
     }
     
     func loadAllProducts() async {
+        guard !isLoading else { return }
         guard allProducts.isEmpty else { return }
+
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
 
         await categoryService.load()
         let categories = categoryService.categories
+        guard !categories.isEmpty else {
+            errorMessage = categoryService.errorMessage
+            return
+        }
 
         let collected = await withTaskGroup(of: [Product].self) { group in
             for category in categories {

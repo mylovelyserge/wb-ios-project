@@ -12,6 +12,7 @@ struct ProductDetailView: View {
     let productId: String
     @State private var service = ProductDetailService()
     @State private var showConfirmation = false
+    @State private var isReviewsPresented = false
     
     @Environment(\.dismiss) private var dismiss
     @Environment(CartService.self) private var cartService
@@ -20,6 +21,15 @@ struct ProductDetailView: View {
         Group {
             if service.isLoading {
                 ProgressView()
+            } else if let errorMessage = service.errorMessage {
+                LoadingErrorView(
+                    title: "Не удалось загрузить товар",
+                    message: errorMessage,
+                    retryTitle: "Повторить",
+                    onRetry: {
+                        Task { await service.load(productId: productId) }
+                    }
+                )
             } else if let product = service.product {
                 ScrollView {
                     VStack(alignment: .leading) {
@@ -82,12 +92,19 @@ struct ProductDetailView: View {
                                         .font(.system(size: 12))
                                 }
                                 
-                                HStack(spacing: 6) {
-                                    Image(systemName: "message")
-                                        .font(.system(size: 12))
-                                    Text(ProductDisplayFormat.reviews(product.reviewsCount))
-                                        .font(DSTypography.body)
+                                Button {
+                                    isReviewsPresented = true
+                                } label: {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "message")
+                                            .font(.system(size: 12))
+                                        Text(ProductDisplayFormat.reviews(product.reviewsCount))
+                                            .font(DSTypography.body)
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 10, weight: .semibold))
+                                    }
                                 }
+                                .buttonStyle(.plain)
                                 .padding(.horizontal, 10)
                             }
                             
@@ -115,6 +132,9 @@ struct ProductDetailView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     .padding(12)
+                }
+                .sheet(isPresented: $isReviewsPresented) {
+                    ReviewsSheetView(productId: product.id)
                 }
                 
             } else {

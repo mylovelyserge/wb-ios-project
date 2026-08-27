@@ -18,18 +18,36 @@ struct CatalogView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottomLeading) {
-                ScrollView {
-                    LazyVGrid(columns: columns, spacing: 2) {
-                        ForEach(service.categories) { category in
-                            NavigationLink {
-                                ProductListView(categoryID: category.id)
-                            } label: {
-                                CategoryCard(category: category)
+                Group {
+                    if service.isLoading {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else if let errorMessage = service.errorMessage {
+                        LoadingErrorView(
+                            title: "Не удалось загрузить каталог",
+                            message: errorMessage,
+                            retryTitle: "Повторить",
+                            onRetry: {
+                                Task { await service.load(forceReload: true) }
                             }
-                            .buttonStyle(.plain)
+                        )
+                    } else if service.categories.isEmpty {
+                        ContentUnavailableView("Каталог пуст", systemImage: "square.grid.3x3")
+                    } else {
+                        ScrollView {
+                            LazyVGrid(columns: columns, spacing: 2) {
+                                ForEach(service.categories) { category in
+                                    NavigationLink {
+                                        ProductListView(categoryID: category.id)
+                                    } label: {
+                                        CategoryCard(category: category)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .padding(.horizontal, 12)
                         }
                     }
-                    .padding(.horizontal, 12)
                 }
                 
                 SearchButton {
