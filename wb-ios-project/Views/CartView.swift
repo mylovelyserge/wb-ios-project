@@ -10,6 +10,9 @@ import DesignSystem
 
 struct CartView: View {
     @Environment(CartService.self) private var cartService
+    @State private var isCheckoutPresented = false
+    @State private var errorMessage: String?
+
     var body: some View {
         NavigationStack {
             Group {
@@ -27,7 +30,7 @@ struct CartView: View {
                             Text(ProductDisplayFormat.totalPrice(cartService.totalPrice))
                             Spacer()
                             Button {
-                                //
+                                isCheckoutPresented = true
                             } label: {
                                 Text("Оформить")
                                     .foregroundStyle(.white)
@@ -45,6 +48,24 @@ struct CartView: View {
             }
             .navigationTitle("Корзина")
             .navigationBarTitleDisplayMode(.inline)
+            .task {
+                await cartService.load()
+            }
+            .onChange(of: cartService.errorMessage) { _, newValue in
+                errorMessage = newValue
+            }
+            .alert("Ошибка", isPresented: Binding(
+                get: { errorMessage != nil },
+                set: { if !$0 { errorMessage = nil } }
+            )) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(errorMessage ?? "")
+            }
+            .sheet(isPresented: $isCheckoutPresented) {
+                CheckoutView()
+                    .environment(cartService)
+            }
         }
     }
 }
