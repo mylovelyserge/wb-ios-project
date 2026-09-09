@@ -81,14 +81,10 @@ struct CheckoutView: View {
                                 .tint(.white)
                         }
                         Text("Оформить заказ")
-                            .font(DSTypography.subtitle)
                     }
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(DSColors.brandGradient)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
+                .buttonStyle(.dsPrimary)
+                .opacity(selectedAddressID == nil || orderService.isSubmitting || cartService.items.isEmpty ? 0.5 : 1)
                 .disabled(selectedAddressID == nil || orderService.isSubmitting || cartService.items.isEmpty)
                 .padding()
                 .background(.bar)
@@ -133,13 +129,12 @@ struct CheckoutView: View {
             } message: {
                 Text(errorMessage ?? "")
             }
-            .alert("Заказ оформлен", isPresented: $isOrderCreated) {
-                Button("OK") {
+            .fullScreenCover(isPresented: $isOrderCreated) {
+                OrderSuccessView {
                     cartService.clear()
+                    isOrderCreated = false
                     dismiss()
                 }
-            } message: {
-                Text("Мы передали заказ в обработку")
             }
             .sheet(isPresented: $isAddingAddress) {
                 AddressFormView(address: .empty, title: "Новый адрес") { address in

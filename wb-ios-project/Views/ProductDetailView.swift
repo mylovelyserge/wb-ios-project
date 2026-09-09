@@ -124,13 +124,8 @@ struct ProductDetailView: View {
                             }
                     } label: {
                         Text(showConfirmation ? "✓ Добавлено" : "В корзину")
-                            .foregroundStyle(.white)
-                            .font(DSTypography.subtitle)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(DSColors.brandGradient)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
+                    .buttonStyle(.dsPrimary)
                     .padding(12)
                 }
                 .sheet(isPresented: $isReviewsPresented) {

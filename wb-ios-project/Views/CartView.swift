@@ -11,12 +11,15 @@ import DesignSystem
 struct CartView: View {
     @Environment(CartService.self) private var cartService
     @State private var isCheckoutPresented = false
+    @State private var isOrdersPresented = false
     @State private var errorMessage: String?
 
     var body: some View {
         NavigationStack {
             Group {
-                if cartService.items.isEmpty {
+                if cartService.isSyncing && cartService.items.isEmpty {
+                    ProgressView()
+                } else if cartService.items.isEmpty {
                     ContentUnavailableView("Корзина пуста", systemImage: "cart")
                 } else {
                     ScrollView {
@@ -33,13 +36,10 @@ struct CartView: View {
                                 isCheckoutPresented = true
                             } label: {
                                 Text("Оформить")
-                                    .foregroundStyle(.white)
-                                    .font(DSTypography.subtitle)
-                                    .padding(.vertical, 12)
-                                    .padding(.horizontal, 24)
-                                    .background(DSColors.brandGradient)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .padding(.horizontal, 12)
                             }
+                            .buttonStyle(.dsPrimary)
+                            .frame(width: 160)
 
                         }
                         .padding()
@@ -48,6 +48,16 @@ struct CartView: View {
             }
             .navigationTitle("Корзина")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        isOrdersPresented = true
+                    } label: {
+                        Image(systemName: "bag")
+                    }
+                    .accessibilityLabel("Заказы")
+                }
+            }
             .task {
                 await cartService.load()
             }
@@ -65,6 +75,11 @@ struct CartView: View {
             .sheet(isPresented: $isCheckoutPresented) {
                 CheckoutView()
                     .environment(cartService)
+            }
+            .sheet(isPresented: $isOrdersPresented) {
+                NavigationStack {
+                    OrdersView()
+                }
             }
         }
     }
