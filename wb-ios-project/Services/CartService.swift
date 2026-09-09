@@ -8,6 +8,7 @@
 import Foundation
 import Observation
 
+@MainActor
 @Observable
 final class CartService {
     private(set) var quantities: [String: Int] = [:]
@@ -16,10 +17,10 @@ final class CartService {
     var errorMessage: String?
 
     private let client = APIClientFactory.makeClient()
-    private let storageKey = "cart.items.v1"
+    private let store = CartStore()
 
     init() {
-        restoreLocalCart()
+        Task { await refreshFromStore() }
     }
 
     func load() async {
@@ -34,26 +35,23 @@ final class CartService {
             switch response {
             case .ok(let okResponse):
                 let payload = try okResponse.body.json
-                var loadedProducts: [String: Product] = [:]
-                var loadedQuantities: [String: Int] = [:]
-
-                for item in payload.items {
+                let snapshotItems = payload.items.map { item in
                     let dto = item.value1
-                    loadedProducts[dto.id] = Product(
-                        id: dto.id,
-                        name: dto.name,
-                        imageURL: URL(string: dto.image),
-                        price: dto.price,
-                        weight: Double(dto.weight),
-                        rating: 0,
-                        reviewCount: 0
+                    return CartStore.ItemSnapshot(
+                        product: Product(
+                            id: dto.id,
+                            name: dto.name,
+                            imageURL: URL(string: dto.image),
+                            price: dto.price,
+                            weight: Double(dto.weight),
+                            rating: 0,
+                            reviewCount: 0
+                        ),
+                        quantity: dto.quantity
                     )
-                    loadedQuantities[dto.id] = dto.quantity
                 }
-
-                products = loadedProducts
-                quantities = loadedQuantities
-                persistLocalCart()
+                let snapshot = await store.replace(with: snapshotItems)
+                apply(snapshot)
             case .unauthorized:
                 errorMessage = "Не удалось авторизоваться"
             case .default:
@@ -61,46 +59,48 @@ final class CartService {
             }
         } catch {
             errorMessage = "Корзина загружена из локального сохранения"
+            await refreshFromStore()
             print("Error: \(error)")
         }
     }
 
     func add(product: Product) {
-        quantities[product.id, default: 0] += 1
-        products[product.id] = product
-        persistLocalCart()
-        Task { await addRemote(productId: product.id) }
+        Task {
+            let snapshot = await store.add(product: product)
+            apply(snapshot)
+            await addRemote(productId: product.id)
+        }
     }
 
     func increase(productId: String) {
-        quantities[productId, default: 0] += 1
-        persistLocalCart()
-        Task { await addRemote(productId: productId) }
+        Task {
+            let snapshot = await store.increase(productId: productId)
+            apply(snapshot)
+            await addRemote(productId: productId)
+        }
     }
 
     func decrease(productId: String) {
-        guard let current = quantities[productId] else { return }
-        if current > 1 {
-            quantities[productId] = current - 1
-        } else {
-            quantities[productId] = nil
-            products[productId] = nil
+        Task {
+            let snapshot = await store.decrease(productId: productId)
+            apply(snapshot)
+            await deleteRemote(productId: productId)
         }
-        persistLocalCart()
-        Task { await deleteRemote(productId: productId) }
     }
 
     func remove(productId: String) {
-        quantities[productId] = nil
-        products[productId] = nil
-        persistLocalCart()
-        Task { await deleteRemote(productId: productId) }
+        Task {
+            let snapshot = await store.remove(productId: productId)
+            apply(snapshot)
+            await deleteRemote(productId: productId)
+        }
     }
 
     func clear() {
-        quantities.removeAll()
-        products.removeAll()
-        persistLocalCart()
+        Task {
+            let snapshot = await store.clear()
+            apply(snapshot)
+        }
     }
 
     var totalCount: Int {
@@ -119,6 +119,16 @@ final class CartService {
             guard let product = products[pair.key] else { return nil }
             return CartItem(product: product, quantity: pair.value)
         }
+    }
+
+    private func refreshFromStore() async {
+        let snapshot = await store.snapshot()
+        apply(snapshot)
+    }
+
+    private func apply(_ snapshot: CartStore.Snapshot) {
+        products = snapshot.products
+        quantities = snapshot.quantities
     }
 
     private func addRemote(productId: String) async {
@@ -144,26 +154,100 @@ final class CartService {
             print("Error: \(error)")
         }
     }
+}
 
-    private func restoreLocalCart() {
-        guard let data = UserDefaults.standard.data(forKey: storageKey) else { return }
+actor CartStore {
+    struct Snapshot: Sendable {
+        let products: [String: Product]
+        let quantities: [String: Int]
+    }
+
+    struct ItemSnapshot: Sendable {
+        let product: Product
+        let quantity: Int
+    }
+
+    private var quantities: [String: Int] = [:]
+    private var products: [String: Product] = [:]
+    private let storageKey = "cart.items.v1"
+
+    init() {
+        let restoredItems = Self.restoreLocalCart(storageKey: storageKey)
+        products = Dictionary(uniqueKeysWithValues: restoredItems.map { ($0.product.id, $0.product) })
+        quantities = Dictionary(uniqueKeysWithValues: restoredItems.map { ($0.product.id, $0.quantity) })
+    }
+
+    func snapshot() -> Snapshot {
+        Snapshot(products: products, quantities: quantities)
+    }
+
+    func replace(with items: [ItemSnapshot]) -> Snapshot {
+        products = Dictionary(uniqueKeysWithValues: items.map { ($0.product.id, $0.product) })
+        quantities = Dictionary(uniqueKeysWithValues: items.map { ($0.product.id, $0.quantity) })
+        persistLocalCart()
+        return snapshot()
+    }
+
+    func add(product: Product) -> Snapshot {
+        quantities[product.id, default: 0] += 1
+        products[product.id] = product
+        persistLocalCart()
+        return snapshot()
+    }
+
+    func increase(productId: String) -> Snapshot {
+        quantities[productId, default: 0] += 1
+        persistLocalCart()
+        return snapshot()
+    }
+
+    func decrease(productId: String) -> Snapshot {
+        guard let current = quantities[productId] else { return snapshot() }
+        if current > 1 {
+            quantities[productId] = current - 1
+        } else {
+            quantities[productId] = nil
+            products[productId] = nil
+        }
+        persistLocalCart()
+        return snapshot()
+    }
+
+    func remove(productId: String) -> Snapshot {
+        quantities[productId] = nil
+        products[productId] = nil
+        persistLocalCart()
+        return snapshot()
+    }
+
+    func clear() -> Snapshot {
+        quantities.removeAll()
+        products.removeAll()
+        persistLocalCart()
+        return snapshot()
+    }
+
+    private static func restoreLocalCart(storageKey: String) -> [StoredCartItem] {
+        guard let data = UserDefaults.standard.data(forKey: storageKey) else { return [] }
         do {
-            let snapshot = try JSONDecoder().decode([StoredCartItem].self, from: data)
-            products = Dictionary(uniqueKeysWithValues: snapshot.map { ($0.product.id, $0.product) })
-            quantities = Dictionary(uniqueKeysWithValues: snapshot.map { ($0.product.id, $0.quantity) })
+            return try JSONDecoder().decode([StoredCartItem].self, from: data)
         } catch {
             UserDefaults.standard.removeObject(forKey: storageKey)
+            return []
         }
     }
 
     private func persistLocalCart() {
-        let snapshot = items.map { StoredCartItem(product: $0.product, quantity: $0.quantity) }
+        let snapshot = quantities.sorted { $0.key < $1.key }.compactMap { pair -> StoredCartItem? in
+            guard let product = products[pair.key] else { return nil }
+            return StoredCartItem(product: product, quantity: pair.value)
+        }
         guard let data = try? JSONEncoder().encode(snapshot) else { return }
         UserDefaults.standard.set(data, forKey: storageKey)
     }
 }
 
-private struct StoredCartItem: Codable {
+private struct StoredCartItem: Codable, Sendable {
     let product: Product
     let quantity: Int
 }

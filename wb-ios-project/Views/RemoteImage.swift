@@ -2,7 +2,6 @@
 //  RemoteImage.swift
 //  wb-ios-project
 //
-//
 
 import SwiftUI
 
@@ -13,13 +12,20 @@ struct RemoteImage<Content: View, Placeholder: View>: View {
 
     @State private var image: Image?
     @State private var loadedURL: URL?
+    @State private var isLoading = false
 
     var body: some View {
         Group {
             if let image {
                 content(image)
             } else {
-                placeholder()
+                ZStack {
+                    placeholder()
+                    if isLoading {
+                        ProgressView()
+                            .controlSize(.small)
+                    }
+                }
             }
         }
         .task(id: url) {
@@ -31,37 +37,22 @@ struct RemoteImage<Content: View, Placeholder: View>: View {
         guard loadedURL != url || image == nil else { return }
 
         guard let url else {
-            await updateImage(nil, loadedURL: nil)
+            updateImage(nil, loadedURL: nil)
             return
         }
 
-        let request = URLRequest(url: url)
-        if let cachedResponse = URLCache.shared.cachedResponse(for: request),
-           let uiImage = UIImage(data: cachedResponse.data) {
-            await updateImage(Image(uiImage: uiImage), loadedURL: url)
-            return
-        }
-
-        do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let uiImage = UIImage(data: data) else {
-                await updateImage(nil, loadedURL: url)
-                return
-            }
-
-            URLCache.shared.storeCachedResponse(
-                CachedURLResponse(response: response, data: data),
-                for: request
-            )
-            await updateImage(Image(uiImage: uiImage), loadedURL: url)
-        } catch {
-            await updateImage(nil, loadedURL: url)
-        }
+        setLoading(true)
+        let uiImage = await RemoteImageCache.shared.image(for: url)
+        updateImage(uiImage.map(Image.init(uiImage:)), loadedURL: url)
+        setLoading(false)
     }
 
-    @MainActor
     private func updateImage(_ image: Image?, loadedURL: URL?) {
         self.image = image
         self.loadedURL = loadedURL
+    }
+
+    private func setLoading(_ isLoading: Bool) {
+        self.isLoading = isLoading
     }
 }

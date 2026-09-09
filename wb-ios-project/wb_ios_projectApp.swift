@@ -13,6 +13,7 @@ struct wb_ios_projectApp: App {
     @State private var favoriteService = FavoriteService()
     @State private var categoryService = CategoryService()
     @State private var searchService: SearchService
+    @State private var isSplashVisible = true
     
     init() {
         let productService = ProductService()
@@ -25,25 +26,41 @@ struct wb_ios_projectApp: App {
     }
     var body: some Scene {
         WindowGroup {
-            TabView {
-                Tab("Каталог", systemImage: "list.bullet") {
-                    CatalogView()
+            ZStack {
+                TabView {
+                    Tab("Каталог", systemImage: "list.bullet") {
+                        CatalogView()
+                    }
+
+                    Tab("Избранное", systemImage: "heart") {
+                        FavoritesView()
+                    }
+
+                    Tab("Корзина", systemImage: "basket") {
+                        CartView()
+                    }
+                    .badge(cartService.totalCount)
+
+                    Tab("Профиль", systemImage: "person") {
+                        ProfileView()
+                    }
                 }
-                
-                Tab("Избранное", systemImage: "heart") {
-                    FavoritesView()
+                .environment(cartService)
+                .environment(favoriteService)
+                .environment(searchService)
+                .environment(categoryService)
+
+                if isSplashVisible {
+                    SplashView()
+                        .transition(.opacity)
                 }
-                
-                Tab("Корзина", systemImage: "basket") {
-                    CartView()
-                }
-                .badge(cartService.totalCount)
-                
             }
-            .environment(cartService)
-            .environment(favoriteService)
-            .environment(searchService)
-            .environment(categoryService)
+            .task {
+                try? await Task.sleep(for: .seconds(1.1))
+                withAnimation(.easeOut(duration: 0.35)) {
+                    isSplashVisible = false
+                }
+            }
         }
     }
 }

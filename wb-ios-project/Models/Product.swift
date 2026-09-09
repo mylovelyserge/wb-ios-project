@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Product: Identifiable, Codable {
+struct Product: Identifiable, Codable, Sendable {
     let id: String
     let name: String
     let imageURL: URL?

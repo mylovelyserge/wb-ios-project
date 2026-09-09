@@ -14,6 +14,7 @@ struct ReviewsSectionView: View {
     let onSubmit: (Int, String) async -> Bool
 
     @State private var isFormPresented = false
+    @State private var sortOption: ReviewSortOption = .dateNewest
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -30,6 +31,15 @@ struct ReviewsSectionView: View {
                     .frame(maxWidth: .infinity)
             } else {
                 ReviewSummaryView(reviews: reviews)
+            }
+
+            if !reviews.isEmpty {
+                Picker("Сортировка", selection: $sortOption) {
+                    ForEach(ReviewSortOption.allCases) { option in
+                        Text(option.title).tag(option)
+                    }
+                }
+                .pickerStyle(.segmented)
             }
 
             Button {
@@ -52,10 +62,12 @@ struct ReviewsSectionView: View {
             }
 
             VStack(spacing: 12) {
-                ForEach(reviews) { review in
+                ForEach(sortedReviews) { review in
                     ReviewRow(review: review)
+                        .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
             }
+            .animation(.snappy, value: sortOption)
         }
         .sheet(isPresented: $isFormPresented) {
             AddReviewView(isSubmitting: isSubmitting) { rating, content in
@@ -65,6 +77,46 @@ struct ReviewsSectionView: View {
                 }
                 return didSubmit
             }
+        }
+    }
+
+    private var sortedReviews: [Review] {
+        switch sortOption {
+        case .dateNewest:
+            return reviews.sorted { $0.createdAt > $1.createdAt }
+        case .ratingHigh:
+            return reviews.sorted {
+                if $0.rating == $1.rating {
+                    return $0.createdAt > $1.createdAt
+                }
+                return $0.rating > $1.rating
+            }
+        case .ratingLow:
+            return reviews.sorted {
+                if $0.rating == $1.rating {
+                    return $0.createdAt > $1.createdAt
+                }
+                return $0.rating < $1.rating
+            }
+        }
+    }
+}
+
+private enum ReviewSortOption: String, CaseIterable, Identifiable {
+    case dateNewest
+    case ratingHigh
+    case ratingLow
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .dateNewest:
+            return "Дата"
+        case .ratingHigh:
+            return "Высокие"
+        case .ratingLow:
+            return "Низкие"
         }
     }
 }

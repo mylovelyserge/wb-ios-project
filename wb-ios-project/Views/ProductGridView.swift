@@ -35,6 +35,9 @@ struct ProductGridView: View {
             }
             .padding(.horizontal, 12)
         }
+        .task(id: products.map(\.id)) {
+            await RemoteImageCache.shared.prefetch(products.compactMap(\.imageURL))
+        }
     }
 }
 
